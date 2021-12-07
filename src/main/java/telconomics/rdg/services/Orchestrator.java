@@ -32,14 +32,12 @@ public class Orchestrator {
         StopWatch stopWatch = new StopWatch();
         for(int i = 0;;i++){
             stopWatch.start();
-            if(i%5 == 0){
+            if(i%1 == 0){
                 Random rn = new Random();
                 int idx = rn.nextInt(cellsManager.getCells().size());
-                double scale = Math.pow(10, 1);
-                float integrity = (float) (Math.round(rn.nextFloat() * scale) / scale);
-                cellsManager.breakCell(idx, integrity);
+                cellsManager.breakCell(idx);
             }
-            realTimeManager.generateRealtimeData(customersManager.getCustomers(), cellsManager.getRegions());
+            realTimeManager.generateRealtimeData1(customersManager.getCustomers(), cellsManager.getRegions());
             stopWatch.stop();
             System.out.println("Finished loop, time: " + stopWatch.getTime(TimeUnit.MILLISECONDS));
             stopWatch.reset();

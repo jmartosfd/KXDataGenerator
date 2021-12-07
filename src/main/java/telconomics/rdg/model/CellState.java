@@ -3,6 +3,7 @@ package telconomics.rdg.model;
 import lombok.Getter;
 
 import java.util.Date;
+import java.util.Random;
 import java.util.UUID;
 
 @Getter
@@ -18,6 +19,17 @@ public class CellState implements QSerializable{
         this.phase = phase;
         this.integrity = integrity;
         this.timeStamp = timeStamp;
+    }
+
+    public CellState(UUID cellID, int phase, Date timeStamp){
+        this.cellID = cellID;
+        this.phase = phase;
+        this.timeStamp = timeStamp;
+
+        Random rn = new Random();
+        double scale = Math.pow(10, 1);
+        this.integrity = (float) Math.max((Math.round(rn.nextFloat() * (0.9F) * scale) / scale), 0.1F);
+
     }
 
     @Override

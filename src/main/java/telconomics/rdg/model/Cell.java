@@ -35,6 +35,13 @@ public class Cell implements CSVSerializable, QSerializable, Neighbour {
         return cs;
     }
 
+    public CellState addNewCellState(){
+        int nextPhase = getCurrentCellState().phase+1;
+        CellState cs = new CellState(id, nextPhase, new Date());
+        cellStates.add(cs);
+        return cs;
+    }
+
 
     public String[] mapToCSVRecord(){
         return new String[]{

@@ -16,7 +16,6 @@ import java.util.*;
 public class CellsManager {
 
     private CellsDAOInterface cellsDAOInterface;
-    private RegionsDAOInterface regionsDAOInterface;
     private CellStatesDAOInterface cellStatesDAOInterface;
     private AppConfig appConfig;
 
@@ -35,7 +34,6 @@ public class CellsManager {
             CellStatesDAOInterface cellStatesDAOInterface,
             AppConfig appConfig){
         this.cellsDAOInterface = cellsDAOInterface;
-        this.regionsDAOInterface = regionsDAOInterface;
         this.appConfig = appConfig;
         //Load regions on construction
         this.regions = regionsDAOInterface.readRegions();
@@ -80,7 +78,7 @@ public class CellsManager {
         brokenCellsIndexes.forEach(integer -> {
             Cell c = cells.get(integer);
             brokenCells.put(c.getId().toString(), c);
-            CellState cs = c.addNewCellState(r.nextFloat());
+            CellState cs = c.addNewCellState();
             cellStatesDAOInterface.saveCellState(cs);
         });
 
@@ -98,12 +96,24 @@ public class CellsManager {
     }
 
 
-    public void breakCell(int idx, float newIntegrity ){
+    public void breakCell(int idx){
         Cell cell= cells.get(idx);
-        CellState cs = cell.addNewCellState(Math.max(newIntegrity, 0.1F));
+        CellState cs = cell.addNewCellState();
         brokenCells.put(cell.getId().toString(), cell);
         cellStatesDAOInterface.saveCellState(cs);
     }
+
+    public void breakCell(String cellID, float integrity){
+        for(Cell c : cells){
+            if(c.getId().toString().equals(cellID)){
+                CellState cs = c.addNewCellState(integrity);
+                brokenCells.put(c.getId().toString(), c);
+                cellStatesDAOInterface.saveCellState(cs);
+
+            }
+        }
+    }
+
 
 
     private Cell generateRandomCell(Region r) {
