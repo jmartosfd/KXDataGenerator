@@ -36,10 +36,8 @@ public class RealTimeManager {
         double[] dspeeds = new double[customers.size()];
         double[] uspeeds = new double[customers.size()];
         double[] lats = new double[customers.size()];
-        ;
         double[] longs = new double[customers.size()];
         double[] distances = new double[customers.size()];
-        ;
 
         for (int i = 0; i < customers.size(); i++) {
             Customer c = customers.get(i);
