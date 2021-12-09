@@ -58,7 +58,7 @@ public class Orchestrator {
 
             if(partial < sleepTime){
                 try {
-                    long missingSleepTime = (long) (1000 - partial);
+                    long missingSleepTime = (long) (sleepTime-partial);
                     Thread.sleep(missingSleepTime);
                 } catch (InterruptedException e) {
                     e.printStackTrace();

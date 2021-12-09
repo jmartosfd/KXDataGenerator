@@ -1,11 +1,14 @@
 package telconomics.rdg.controllers;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import telconomics.rdg.services.CellsManager;
 
-@RestController("/rdg")
+import java.util.Map;
+
+@RestController
 public class CellsController {
 
     private CellsManager cellsManager;
@@ -30,9 +33,10 @@ public class CellsController {
         return new ResponseEntity(HttpStatus.OK);
     }
 
-    @PutMapping("/cells/{cellID}")
-    public ResponseEntity breakCell(@PathVariable String cellID, @RequestBody Float integrity) {
-        System.out.println("Called breakCell on " + cellID);
+    @PutMapping(value = "/cells/{cellID}", consumes = MediaType.ALL_VALUE)
+    public ResponseEntity breakCell(@PathVariable String cellID, @RequestBody Map<String, Float> request) {
+        float integrity = request.get("integrity");
+        System.out.println("Called breakCell on " + cellID + " with new Integrity as: "+integrity);
         cellsManager.breakCell(cellID, integrity);
         return new ResponseEntity(HttpStatus.OK);
     }
