@@ -41,6 +41,15 @@ public class AppConfig {
     @Value("${generator.brokencells.size}")
     private int numberOfBrokenCells;
 
+    @Value("${realtime.breakinterval}")
+    private int breakInterval;
+
+    @Value("${realtime.batchpartition}")
+    private int batchpartition;
+
+    @Value("${realtime.sleeptime}")
+    private int sleeptime;
+
 
 }
 
