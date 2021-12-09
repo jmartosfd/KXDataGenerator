@@ -10,7 +10,7 @@ import java.util.UUID;
 
 public class QuadTree {
 
-    public static final double QUADTREE_LAST_NODE_SIZE_IN_KM = 0.5;
+    public static final double QUADTREE_LAST_NODE_SIZE_IN_KM = 1;
 
     public static final double QUADTREE_LAST_NODE_SIZE_IN_DEGREE = kmToDegree(QUADTREE_LAST_NODE_SIZE_IN_KM);
 

@@ -49,4 +49,13 @@ public class ConnectionRecordsDAO implements ConnectionRecordsDAOInterface {
             e.printStackTrace();
         }
     }
+
+    @Override
+    public void batchInsertConnectionRecord(Object[] records) {
+        try {
+            qConnection.getQ().ks("insert", tableName, records);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }

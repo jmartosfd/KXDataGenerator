@@ -3,9 +3,6 @@ package telconomics.rdg.model;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
-import java.util.LinkedList;
-import java.util.Queue;
-
 @Data
 @AllArgsConstructor
 public class Customer implements CSVSerializable, QSerializable {
@@ -20,7 +17,7 @@ public class Customer implements CSVSerializable, QSerializable {
     private double laDelta = 0;
     private double lngDelta = 0;
 
-    private Queue<Coordinate> lastLocations = new LinkedList<>();
+    private Cell lastConnectedCell;
 
 
     public Customer(double imsi, String imei, double deviceSignalQuality, String assignedRegion) {

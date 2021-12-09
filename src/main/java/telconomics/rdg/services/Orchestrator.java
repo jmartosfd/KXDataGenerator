@@ -28,23 +28,27 @@ public class Orchestrator {
         cellsManager.loadCellsForRealTime();
         customersManager.loadCustomersForRealTime();
 
-
+        double totalTime = 0;
         StopWatch stopWatch = new StopWatch();
-        for(int i = 0;;i++){
+        for(int i = 0;i<10;i++){
             stopWatch.start();
             if(i%1 == 0){
                 Random rn = new Random();
                 int idx = rn.nextInt(cellsManager.getCells().size());
                 cellsManager.breakCell(idx);
             }
-            realTimeManager.generateRealtimeData1(customersManager.getCustomers(), cellsManager.getRegions());
+            realTimeManager.generateRealtimeDataWithBatchInsertion(customersManager.getCustomers(), cellsManager.getRegions());
             stopWatch.stop();
+            double partial = stopWatch.getTime(TimeUnit.MILLISECONDS);
+            totalTime+=partial;
             System.out.println("Finished loop, time: " + stopWatch.getTime(TimeUnit.MILLISECONDS));
             stopWatch.reset();
 
         }
+        System.out.println("Average time: "+totalTime/10);
 
     }
+
 
 
 }
