@@ -30,7 +30,7 @@ public class Orchestrator {
     public void launchRealTime(){
         cellsManager.loadCellsForRealTime();
         customersManager.loadCustomersForRealTime();
-        int partitionSize = 250000;
+        int partitionSize = Math.min(250000, customersManager.getCustomers().size());
         List<List<Customer>> batchPartitions = ListUtils.partition(customersManager.getCustomers(), partitionSize);
 
 
