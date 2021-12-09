@@ -1,8 +1,11 @@
 package telconomics.rdg.services;
 
+import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.time.StopWatch;
 import org.springframework.stereotype.Service;
+import telconomics.rdg.model.Customer;
 
+import java.util.List;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
@@ -27,6 +30,10 @@ public class Orchestrator {
     public void launchRealTime(){
         cellsManager.loadCellsForRealTime();
         customersManager.loadCustomersForRealTime();
+        int partitionSize = 250000;
+        List<List<Customer>> batchPartitions = ListUtils.partition(customersManager.getCustomers(), partitionSize);
+
+
 
         double totalTime = 0;
         StopWatch stopWatch = new StopWatch();
@@ -37,7 +44,7 @@ public class Orchestrator {
                 int idx = rn.nextInt(cellsManager.getCells().size());
                 cellsManager.breakCell(idx);
             }
-            realTimeManager.generateRealtimeDataWithBatchInsertion(customersManager.getCustomers(), cellsManager.getRegions());
+            realTimeManager.generateRealtimeDataWithBatchInsertion(batchPartitions, partitionSize, cellsManager.getRegions());
             stopWatch.stop();
             double partial = stopWatch.getTime(TimeUnit.MILLISECONDS);
             totalTime+=partial;
