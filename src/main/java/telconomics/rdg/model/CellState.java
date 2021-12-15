@@ -1,6 +1,7 @@
 package telconomics.rdg.model;
 
 import lombok.Getter;
+import org.apache.commons.math3.util.Precision;
 
 import java.util.Date;
 import java.util.Random;
@@ -27,8 +28,9 @@ public class CellState implements QSerializable{
         this.timeStamp = timeStamp;
 
         Random rn = new Random();
-        double scale = Math.pow(10, 1);
-        this.integrity = (float) Math.max((Math.round(rn.nextFloat() * (0.9F) * scale) / scale), 0.1F);
+        float tmpIntegrity = rn.nextFloat() * 0.9F;
+        tmpIntegrity = Precision.round(tmpIntegrity, 1);
+        this.integrity = Math.max(tmpIntegrity, 0.1F);
 
     }
 

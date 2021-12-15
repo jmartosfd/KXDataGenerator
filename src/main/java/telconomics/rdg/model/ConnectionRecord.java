@@ -40,11 +40,11 @@ public class ConnectionRecord implements CSVSerializable, QSerializable {
 
         double signalQuality = (customer.getDeviceSignalQuality() + cell.getSignalQuality()) / 2;
         Random random = new Random();
-        double dspeedRnd = random.nextDouble()*10;
-        double uspeedRnd = random.nextDouble()*5;
+        double dspeedRnd = random.nextDouble()*5;
+        double uspeedRnd = random.nextDouble()*3;
         CellState currentCellState = cell.getCurrentCellState();
 
-        downloadSpeed = calculateNewValueInRange(signalQuality, minDownloadQuality, maxDownloadQuality) * currentCellState.getIntegrity() - distanceToCell*3 + dspeedRnd;
+        downloadSpeed = calculateNewValueInRange(signalQuality, minDownloadQuality, maxDownloadQuality) * currentCellState.getIntegrity() - distanceToCell*5 + dspeedRnd;
         uploadSpeed = calculateNewValueInRange(signalQuality, minUploadQuality, maxUploadQuality) * currentCellState.getIntegrity() - distanceToCell*2 + uspeedRnd;
 
         userLocation = customer.getCurrentLocation();

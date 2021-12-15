@@ -5,6 +5,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import telconomics.rdg.services.CellsManager;
+import telconomics.rdg.services.Orchestrator;
 
 import java.util.Map;
 
@@ -12,9 +13,11 @@ import java.util.Map;
 public class CellsController {
 
     private CellsManager cellsManager;
+    private Orchestrator orchestrator;
 
-    public CellsController(CellsManager cellsManager) {
+    public CellsController(CellsManager cellsManager, Orchestrator orchestrator) {
         this.cellsManager = cellsManager;
+        this.orchestrator = orchestrator;
     }
 
 
@@ -41,15 +44,15 @@ public class CellsController {
         return new ResponseEntity(HttpStatus.OK);
     }
 
-    ;
+    @PutMapping(value = "/automatic-repair", consumes = MediaType.ALL_VALUE)
+    public ResponseEntity automaticFix(@RequestBody Map<String, Integer> request) {
+        System.out.println("Activated automatic repair of cells");
+        int fixInterval = request.get("fixInterval");
+        orchestrator.setActivateAutomaticCellRepair(Boolean.TRUE);
+        orchestrator.setFixCellInterval(fixInterval);
+        return new ResponseEntity(HttpStatus.OK);
+    }
 
-    //Consider adding a method to also break cells dinamically
-    //May suppose storing in memory an additional data structure
-    /**
-     @PatchMapping("cells/{cellID}") public ResponseEntity breakCell(@PathVariable String cellID){
-     cellsManager.
-     }
-     */
 
 
 }

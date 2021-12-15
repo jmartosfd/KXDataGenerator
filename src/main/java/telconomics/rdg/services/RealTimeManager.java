@@ -20,51 +20,6 @@ public class RealTimeManager {
 
     public RealTimeManager(ConnectionRecordsDAOInterface connectionRecordsDAOInterface) {
         this.connectionRecordsDAO = connectionRecordsDAOInterface;
-
-
-    }
-
-    public void generateRealtimeDataWithBatchInsertion2(List<List<Customer>> batchPartitions, int partitionSize, Map<String, Region> loadedRegions) {
-
-        //Pair<Cell, Double> pair = findClosestCellToCustomer(customers.get(0), loadedRegions.get(customers.get(0).getAssignedRegion()));
-
-        Date[] timestamps = new Date[partitionSize];
-        String[] cellsIDs = new String[partitionSize];
-        int[] cellPhases = new int[partitionSize];
-        String[] userImsis = new String[partitionSize];
-        String[] userImeis = new String[partitionSize];
-        double[] dspeeds = new double[partitionSize];
-        double[] uspeeds = new double[partitionSize];
-        double[] lats = new double[partitionSize];
-        double[] longs = new double[partitionSize];
-        double[] distances = new double[partitionSize];
-
-        for(List<Customer> customersPartition : batchPartitions) {
-            for (int i = 0; i < customersPartition.size(); i++) {
-                Customer c = customersPartition.get(i);
-                Pair<Cell, Double> pair = findClosestCellToCustomer(c, loadedRegions.get(c.getAssignedRegion()));
-                ConnectionRecord connectionRecord = new ConnectionRecord(c, pair.getLeft(), pair.getRight());
-                Object[] qReady = connectionRecord.mapToQArray();
-                timestamps[i] = (Date) qReady[0];
-                cellsIDs[i] = (String) qReady[1];
-                cellPhases[i] = (int) qReady[2];
-                userImsis[i] = (String) qReady[3];
-                userImeis[i] = (String) qReady[4];
-                dspeeds[i] = (double) qReady[5];
-                uspeeds[i] = (double) qReady[6];
-                lats[i] = (double) qReady[7];
-                longs[i] = (double) qReady[8];
-                distances[i] = (double) qReady[9];
-                customerNextStep(customersPartition.get(i));
-
-            }
-
-            Object[] batchRecords = new Object[]{
-                    timestamps, cellsIDs, cellPhases, userImsis, userImeis, dspeeds, uspeeds, lats, longs, distances
-            };
-            connectionRecordsDAO.batchInsertConnectionRecord(batchRecords);
-        }
-
     }
 
 

@@ -19,6 +19,7 @@ public class CellsManager {
     private CellStatesDAOInterface cellStatesDAOInterface;
     private AppConfig appConfig;
 
+    @Getter
     private Map<String, Cell> brokenCells; //Maybe change to Map<String,Cell> if fixBrokenCell is more commonly used than his plural counterpart
 
     @Getter
@@ -91,8 +92,12 @@ public class CellsManager {
 
     public void fixBrokenCell(String cellID){
         Cell cell = brokenCells.get(cellID);
-        CellState cs = cell.addNewCellState(1F);
-        cellStatesDAOInterface.saveCellState(cs);
+        if(cell.getCurrentCellState().getIntegrity() != 1F){
+            CellState cs = cell.addNewCellState(1F);
+            cellStatesDAOInterface.saveCellState(cs);
+            brokenCells.remove(cellID);
+        }
+
     }
 
 
@@ -118,7 +123,8 @@ public class CellsManager {
 
     private Cell generateRandomCell(Region r) {
         double signalQuality = new Random().nextGaussian();
-
+        Math.max(signalQuality, ConnectionRecord.normalOldMin);
+        Math.min(signalQuality, ConnectionRecord.normalRange/2);
         if (signalQuality < ConnectionRecord.normalOldMin){
             signalQuality = ConnectionRecord.normalOldMin;
         }else if(signalQuality > ConnectionRecord.normalRange/2){

@@ -1,11 +1,13 @@
 package telconomics.rdg.services;
 
+import lombok.Setter;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.time.StopWatch;
 import org.springframework.stereotype.Service;
 import telconomics.rdg.model.Customer;
 import telconomics.rdg.utils.AppConfig;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
@@ -17,6 +19,12 @@ public class Orchestrator {
     private CustomersManager customersManager;
     private RealTimeManager realTimeManager;
     private AppConfig appConfig;
+
+    @Setter
+    private boolean activateAutomaticCellRepair=false;
+
+    @Setter
+    private int fixCellInterval=1;
 
     public Orchestrator(CellsManager cellsManager, CustomersManager customersManager,
                         RealTimeManager realTimeManager, AppConfig appConfig){
@@ -50,6 +58,17 @@ public class Orchestrator {
                 int idx = rn.nextInt(cellsManager.getCells().size());
                 cellsManager.breakCell(idx);
             }
+
+            if(activateAutomaticCellRepair && i%fixCellInterval == 0 && !cellsManager.getBrokenCells().isEmpty()){
+                Random rn = new Random();
+                int idx = rn.nextInt(cellsManager.getBrokenCells().size());
+                String cellIDtoFix = new ArrayList<>(cellsManager.getBrokenCells().values()).get(idx).getId().toString();
+                System.out.println("Fixing cell with ID: "+cellIDtoFix);
+                cellsManager.fixBrokenCell(cellIDtoFix);
+
+            }
+
+
             realTimeManager.generateRealtimeDataWithBatchInsertion(batchPartitions, partitionSize, cellsManager.getRegions());
             stopWatch.stop();
             double partial = stopWatch.getTime(TimeUnit.MILLISECONDS);
@@ -59,8 +78,10 @@ public class Orchestrator {
             if(partial < sleepTime){
                 try {
                     long missingSleepTime = (long) (sleepTime-partial);
+                    System.out.println("Sleeping "+missingSleepTime);
                     Thread.sleep(missingSleepTime);
                 } catch (InterruptedException e) {
+                    System.out.println("Error in sleep");
                     e.printStackTrace();
                 }
             }

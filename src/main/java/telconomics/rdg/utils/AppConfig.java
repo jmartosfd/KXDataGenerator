@@ -49,7 +49,6 @@ public class AppConfig {
 
     @Value("${realtime.sleeptime}")
     private int sleeptime;
-
-
+    
 }
 
