@@ -7,7 +7,7 @@ import lombok.Data;
 @AllArgsConstructor
 public class Customer implements CSVSerializable, QSerializable {
 
-    private double imsi;
+    private String imsi;
     private String imei;
     private double deviceSignalQuality;
 
@@ -21,14 +21,14 @@ public class Customer implements CSVSerializable, QSerializable {
 
 
     public Customer(double imsi, String imei, double deviceSignalQuality, String assignedRegion) {
-        this.imsi = imsi;
+        this.imsi = String.valueOf(imsi);
         this.imei = imei;
         this.deviceSignalQuality = deviceSignalQuality;
         this.assignedRegion = assignedRegion;
 
     }
 
-    public Customer(double imsi, String imei, double signalQuality, String region, Coordinate location) {
+    public Customer(String imsi, String imei, double signalQuality, String region, Coordinate location) {
         this.imsi = imsi;
         this.imei = imei;
         this.deviceSignalQuality = signalQuality;

@@ -2,7 +2,6 @@ package telconomics.rdg.services;
 
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import telconomics.rdg.daos.CustomersDAOInterface;
 import telconomics.rdg.daos.RegionsDAOInterface;
@@ -10,6 +9,7 @@ import telconomics.rdg.model.ConnectionRecord;
 import telconomics.rdg.model.Coordinate;
 import telconomics.rdg.model.Customer;
 import telconomics.rdg.model.Region;
+import telconomics.rdg.utils.AppConfig;
 import telconomics.rdg.utils.IMEIGenerator;
 import telconomics.rdg.utils.IMSIGenerator;
 
@@ -20,10 +20,10 @@ import java.util.Random;
 @Service
 public class CustomersManager {
 
-    @Value("${generator.customers.size}")
-    private int numberOfCustomers;
+
     private CustomersDAOInterface customersDAOInterface;
     private RegionsDAOInterface regionsDAOInterface;
+    private AppConfig appConfig;
 
     @Getter
     private List<Customer> customers;
@@ -31,16 +31,18 @@ public class CustomersManager {
     public CustomersManager(
             @Qualifier("customersDAOq")
             CustomersDAOInterface customersDAOInterface,
-            RegionsDAOInterface regionsDAOInterface) {
+            RegionsDAOInterface regionsDAOInterface,
+            AppConfig appConfig) {
         this.customersDAOInterface = customersDAOInterface;
         this.regionsDAOInterface = regionsDAOInterface;
+        this.appConfig = appConfig;
     }
 
     public void generateNewCustomers() {
         List<Region> regions = new ArrayList<>(regionsDAOInterface.readRegions().values());
         Random random = new Random();
         List<Customer> customers = new ArrayList<>();
-        for (int i = 0; i < numberOfCustomers; i++) {
+        for (int i = 0; i < appConfig.getNumberOfCustomers(); i++) {
             Region selectedRegion = regions.get(random.nextInt(regions.size()));
             customers.add(generateRandomCustomer(selectedRegion,i));
 
@@ -66,7 +68,7 @@ public class CustomersManager {
         String imei = IMEIGenerator.generateIMEI();
         double imsi = IMSIGenerator.generateIMSI(id);
         Coordinate coordinate = r.getRegion().createInnerRandomCoordinate();
-        Customer c = new Customer(imsi,imei,signalQuality, r.getName(), coordinate);
+        Customer c = new Customer(String.valueOf(imsi),imei,signalQuality, r.getName(), coordinate);
         return c;
     }
 

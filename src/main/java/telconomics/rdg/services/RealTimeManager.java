@@ -23,7 +23,7 @@ public class RealTimeManager {
     }
 
 
-    public void generateRealtimeDataWithBatchInsertion(List<List<Customer>> batchPartitions, int partitionSize, Map<String, Region> loadedRegions) {
+    public void  generateRealtimeDataWithBatchInsertion(List<List<Customer>> batchPartitions, int partitionSize, Map<String, Region> loadedRegions) {
 
 
         batchPartitions.forEach(customersPartition -> {

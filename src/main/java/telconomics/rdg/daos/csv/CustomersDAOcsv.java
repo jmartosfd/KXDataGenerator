@@ -3,13 +3,11 @@ package telconomics.rdg.daos.csv;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 import telconomics.rdg.daos.CustomersDAOInterface;
 import telconomics.rdg.model.Coordinate;
 import telconomics.rdg.model.Customer;
 import telconomics.rdg.utils.AppConfig;
-import telconomics.rdg.utils.FileUtils;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -64,7 +62,7 @@ public class CustomersDAOcsv implements CustomersDAOInterface {
 
 
     private Customer mapCustomerFromCSVRecord(CSVRecord csvRecord){
-        double imsi = Double.parseDouble(csvRecord.get(csvRecordImsi));
+        String imsi = csvRecord.get(csvRecordImsi);
         String imei = csvRecord.get(csvRecordImei);
         double signalQuality = Double.parseDouble(csvRecord.get(csvRecordSignalQuality));
         String region = csvRecord.get(csvRecordRegion);

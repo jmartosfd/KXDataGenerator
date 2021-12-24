@@ -41,6 +41,9 @@ public class AppConfig {
     @Value("${generator.brokencells.size}")
     private int numberOfBrokenCells;
 
+    @Value("${generator.customers.size}")
+    private int numberOfCustomers;
+
     @Value("${realtime.breakinterval}")
     private int breakInterval;
 
@@ -49,6 +52,6 @@ public class AppConfig {
 
     @Value("${realtime.sleeptime}")
     private int sleeptime;
-    
+
 }
 

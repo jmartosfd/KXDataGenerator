@@ -14,7 +14,6 @@ import java.util.UUID;
 @Repository
 public class CellsDAOq implements CellsDAOInterface {
 
-
     private QConnection qConnection;
     private AppConfig appConfig;
 
@@ -60,7 +59,31 @@ public class CellsDAOq implements CellsDAOInterface {
 
     @Override
     public void batchSaveCells(List<Cell> cells) {
-        cells.forEach(this::saveCell);
+        int size = cells.size();
+        String[] cellIDs = new String[size];
+        double[] lats = new double[size];
+        double[] lngs = new double[size];
+        double[] squals = new double[size];
+        String[] regions = new String[size];
+
+        for(int i = 0; i < cells.size(); i++){
+            cellIDs[i] = String.valueOf(cells.get(i).getId());
+            lats[i] = cells.get(i).getLocation().getLatitude();
+            lngs[i] = cells.get(i).getLocation().getLongitude();
+            squals[i] = cells.get(i).getSignalQuality();
+            regions[i] = cells.get(i).getRegion();
+        }
+
+        Object[] cellsArray = new Object[]{
+                cellIDs, lats, lngs, squals, regions
+        };
+
+        try {
+            qConnection.getQ().ks("insert", tableName, cellsArray);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
 
     @Override

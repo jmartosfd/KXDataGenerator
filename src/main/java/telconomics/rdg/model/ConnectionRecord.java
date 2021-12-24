@@ -17,7 +17,7 @@ public class ConnectionRecord implements CSVSerializable, QSerializable {
     public static float normalNewMin = 0;
 
     CellState connectedCell;
-    double customerIMSI;
+    String customerIMSI;
     String customerIMEI;
     double downloadSpeed;
     double uploadSpeed;
@@ -65,7 +65,7 @@ public class ConnectionRecord implements CSVSerializable, QSerializable {
         return new String[]{
                 connectedCell.getCellID().toString(),
                 String.valueOf(connectedCell.getPhase()),
-                String.valueOf(customerIMSI),
+                customerIMSI,
                 customerIMEI,
                 String.valueOf(downloadSpeed),
                 String.valueOf(uploadSpeed),
@@ -79,7 +79,7 @@ public class ConnectionRecord implements CSVSerializable, QSerializable {
     public Object[] mapToQArray(){
         return new Object[]{
                 timestamp, connectedCell.getCellID().toString(), connectedCell.getPhase(),
-                String.valueOf(customerIMSI), customerIMEI, downloadSpeed, uploadSpeed,
+                customerIMSI, customerIMEI, downloadSpeed, uploadSpeed,
                 userLocation.getLatitude(), userLocation.getLongitude(), distanceToCell
         };
     }
