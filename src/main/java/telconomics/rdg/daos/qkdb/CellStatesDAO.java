@@ -11,17 +11,19 @@ import java.io.IOException;
 public class CellStatesDAO implements CellStatesDAOInterface {
 
     private QConnection qConnection;
-    private AppConfig appConfig;
 
-    private static final String QINSERT = "insert";
-    private String tableName = "cellStates";
+    private String QINSERT;
+    private String tableName;
 
     public CellStatesDAO(QConnection qConnection, AppConfig appConfig) {
         this.qConnection = qConnection;
-        this.appConfig = appConfig;
+        this.QINSERT = appConfig.getUpdate();
+        this.tableName = appConfig.getCellStates();
+        /**
         if(appConfig.isGenerateData()){
             createSchema();
         }
+         */
 
     }
 

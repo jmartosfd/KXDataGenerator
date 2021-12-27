@@ -10,16 +10,14 @@ import java.io.IOException;
 @Repository
 public class ConnectionRecordsDAO implements ConnectionRecordsDAOInterface {
 
-    AppConfig appConfig;
     private QConnection qConnection;
     private String tableName;
-
-    private static final String QUPDATE = "insert";
+    private String QUPDATE;
 
     public ConnectionRecordsDAO(QConnection qConnection, AppConfig appConfig) {
         this.qConnection = qConnection;
-        this.appConfig = appConfig;
-        tableName = appConfig.getRecordsTableName();
+        this.QUPDATE = appConfig.getUpdate();
+        this.tableName = appConfig.getRecordsTableName();
         String table =tableName+":([] ts: `datetime$();" +
                 "cellID:`symbol$(); " +
                 "phase:`int$(); " +
@@ -31,12 +29,13 @@ public class ConnectionRecordsDAO implements ConnectionRecordsDAOInterface {
                 "lng: `float$();"+
                 "cellDistance: `float$()"+
                 ")";
-
+        /**
         try {
             qConnection.getQ().k(table);
         } catch (c.KException | IOException e) {
             e.printStackTrace();
         }
+         */
 
     }
 
@@ -53,7 +52,7 @@ public class ConnectionRecordsDAO implements ConnectionRecordsDAOInterface {
     @Override
     public void batchInsertConnectionRecord(Object[] records) {
         try {
-            qConnection.getQ().ks("insert", tableName, records);
+            qConnection.getQ().ks(QUPDATE, tableName, records);
         } catch (IOException e) {
             e.printStackTrace();
         }

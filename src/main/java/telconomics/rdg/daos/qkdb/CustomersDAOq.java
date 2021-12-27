@@ -14,7 +14,8 @@ import java.util.List;
 public class CustomersDAOq implements CustomersDAOInterface {
 
     private QConnection qConnection;
-    private static final String QUPDATE = "insert";
+    private String QUPDATE;
+    private String QINSERT = "insert";
     private static String QSELECT = "select from ";
     private String tableName;
 
@@ -22,9 +23,12 @@ public class CustomersDAOq implements CustomersDAOInterface {
     public CustomersDAOq(QConnection qConnection, AppConfig appConfig){
         this.qConnection = qConnection;
         this.tableName = appConfig.getCustomersTableName();
+        this.QUPDATE = appConfig.getUpdate();
         QSELECT+=tableName;
+
         if(appConfig.isGenerateData())
             createSchema();
+
     }
 
 
@@ -38,7 +42,7 @@ public class CustomersDAOq implements CustomersDAOInterface {
                 "lng: `float$())";
 
         try {
-            qConnection.getQ().k(table);
+            qConnection.getGeneratorQ().k(table);
         } catch (c.KException | IOException e) {
             e.printStackTrace();
         }
@@ -48,6 +52,7 @@ public class CustomersDAOq implements CustomersDAOInterface {
     public void saveCustomer(Customer customer) {
         try {
             qConnection.getQ().ks(QUPDATE, tableName, customer.mapToQArray());
+            qConnection.getGeneratorQ().ks(QINSERT, tableName, customer.mapToQArray());
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -75,7 +80,8 @@ public class CustomersDAOq implements CustomersDAOInterface {
         Object customersArray[] = new Object[]{imsis,imeis,signalQuals,regions,lats,lngs};
 
         try {
-            qConnection.getQ().ks("insert", tableName, customersArray);
+            qConnection.getQ().ks(QUPDATE, tableName, customersArray);
+            qConnection.getGeneratorQ().ks(QINSERT, tableName, customersArray);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -86,7 +92,7 @@ public class CustomersDAOq implements CustomersDAOInterface {
     public List<Customer> batchReadCustomers() {
 
         try {
-            c.Flip res = (c.Flip) qConnection.getQ().k(QSELECT);
+            c.Flip res = (c.Flip) qConnection.getGeneratorQ().k(QSELECT);
             Object[] columnData = res.y;
             String[] imsis = (String[]) columnData[0];
             String[] imeis = (String[]) columnData[1];

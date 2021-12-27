@@ -23,11 +23,17 @@ public class AppConfig {
     @Value("${q.table.customers}")
     private String customersTableName;
 
+    @Value("${q.table.cellStates}")
+    private String cellStates;
+
     @Value("${q.host}")
     private String host;
 
-    @Value("${q.port}")
-    private int port;
+    @Value("${q.tp.port}")
+    private int tpPort;
+
+    @Value("${q.aux.port}")
+    private int auxPort;
 
     @Value("${q.username}")
     private String username;
@@ -52,6 +58,9 @@ public class AppConfig {
 
     @Value("${realtime.sleeptime}")
     private int sleeptime;
+
+    @Value("${q.update}")
+    private String update;
 
 }
 

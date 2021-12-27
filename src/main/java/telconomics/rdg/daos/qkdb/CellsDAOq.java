@@ -15,26 +15,26 @@ import java.util.UUID;
 public class CellsDAOq implements CellsDAOInterface {
 
     private QConnection qConnection;
-    private AppConfig appConfig;
-
-    private static final String QINSERT = "insert";
-    private static String QSELECT = "select from ";
-    private static final String QUPDATE = "u.upd";
+    private String QUPDATE;
+    private String QINSERT = "insert";
+    private String QSELECT = "select from ";
     private String tableName;
 
     public CellsDAOq(QConnection qConnection, AppConfig appConfig) {
         this.qConnection = qConnection;
-        this.appConfig = appConfig;
-        tableName = appConfig.getCellsTableName();
-        QSELECT+=tableName;
-        if(appConfig.isGenerateData()){
+        this.QUPDATE = appConfig.getUpdate();
+        this.tableName = appConfig.getCellsTableName();
+        this.QSELECT += tableName;
+
+        if (appConfig.isGenerateData()) {
             createSchema();
         }
+
 
     }
 
 
-    private void createSchema(){
+    private void createSchema() {
         String table = tableName + ":([cellID:`symbol$()] " +
                 "lat: `float$();" +
                 "lng: `float$();" +
@@ -42,7 +42,7 @@ public class CellsDAOq implements CellsDAOInterface {
                 "region: `symbol$())";
 
         try {
-            qConnection.getQ().k(table);
+            qConnection.getGeneratorQ().k(table);
         } catch (c.KException | IOException e) {
             e.printStackTrace();
         }
@@ -51,7 +51,8 @@ public class CellsDAOq implements CellsDAOInterface {
     @Override
     public void saveCell(Cell cell) {
         try {
-            qConnection.getQ().ks(QINSERT, tableName, cell.mapToQArray());
+            qConnection.getQ().ks(QUPDATE, tableName, cell.mapToQArray());
+            qConnection.getGeneratorQ().ks(QINSERT, tableName, cell.mapToQArray());
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -66,7 +67,7 @@ public class CellsDAOq implements CellsDAOInterface {
         double[] squals = new double[size];
         String[] regions = new String[size];
 
-        for(int i = 0; i < cells.size(); i++){
+        for (int i = 0; i < cells.size(); i++) {
             cellIDs[i] = String.valueOf(cells.get(i).getId());
             lats[i] = cells.get(i).getLocation().getLatitude();
             lngs[i] = cells.get(i).getLocation().getLongitude();
@@ -79,7 +80,8 @@ public class CellsDAOq implements CellsDAOInterface {
         };
 
         try {
-            qConnection.getQ().ks("insert", tableName, cellsArray);
+            qConnection.getQ().ks(QUPDATE, tableName, cellsArray);
+            qConnection.getGeneratorQ().ks(QINSERT, tableName, cellsArray);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -89,7 +91,7 @@ public class CellsDAOq implements CellsDAOInterface {
     @Override
     public List<Cell> batchReadCells() {
         try {
-            c.Flip res = c.td(qConnection.getQ().k(QSELECT));
+            c.Flip res = c.td(qConnection.getGeneratorQ().k(QSELECT));
             Object[] columnData = res.y;
             String[] uuids = (String[]) columnData[0];
             double[] lats = (double[]) columnData[1];
@@ -114,7 +116,7 @@ public class CellsDAOq implements CellsDAOInterface {
     @Override
     public void updateCell(Cell cell) {
         try {
-            qConnection.getQ().ks("upsert", tableName,  cell.mapToQArray());
+            qConnection.getQ().ks("upsert", tableName, cell.mapToQArray());
         } catch (IOException e) {
             e.printStackTrace();
         }
