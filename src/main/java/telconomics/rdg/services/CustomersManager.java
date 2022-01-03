@@ -1,7 +1,7 @@
 package telconomics.rdg.services;
 
 import lombok.Getter;
-import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 import telconomics.rdg.daos.CustomersDAOInterface;
 import telconomics.rdg.daos.RegionsDAOInterface;
@@ -28,14 +28,12 @@ public class CustomersManager {
     @Getter
     private List<Customer> customers;
 
-    public CustomersManager(
-            @Qualifier("customersDAOq")
-            CustomersDAOInterface customersDAOInterface,
-            RegionsDAOInterface regionsDAOInterface,
-            AppConfig appConfig) {
-        this.customersDAOInterface = customersDAOInterface;
-        this.regionsDAOInterface = regionsDAOInterface;
+    public CustomersManager(ApplicationContext applicationContext, AppConfig appConfig, RegionsDAOInterface regionsDAOInterface) {
         this.appConfig = appConfig;
+        this.regionsDAOInterface = regionsDAOInterface;
+
+        String customersDAOQualifier = appConfig.getCustomersDAOQualifier();
+        this.customersDAOInterface = (CustomersDAOInterface) applicationContext.getBean(customersDAOQualifier);
     }
 
     public void generateNewCustomers() {
@@ -52,7 +50,7 @@ public class CustomersManager {
 
     }
 
-    public void loadCustomersForRealTime(){
+    public void loadCustomers(){
         customers = customersDAOInterface.batchReadCustomers();
     }
 

@@ -3,26 +3,27 @@ package telconomics.rdg.model;
 import lombok.Getter;
 import org.apache.commons.math3.util.Precision;
 
-import java.util.Date;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.Random;
 import java.util.UUID;
 
 @Getter
-public class CellState implements QSerializable{
+public class CellState implements QSerializable, CSVSerializable {
 
     UUID cellID;
     int phase;
     float integrity;
-    Date timeStamp;
+    LocalDateTime timeStamp;
 
-    protected CellState(UUID cellID, int phase, float integrity, Date timeStamp){
+    protected CellState(UUID cellID, int phase, float integrity, LocalDateTime timeStamp) {
         this.cellID = cellID;
         this.phase = phase;
         this.integrity = integrity;
         this.timeStamp = timeStamp;
     }
 
-    public CellState(UUID cellID, int phase, Date timeStamp){
+    public CellState(UUID cellID, int phase, LocalDateTime timeStamp) {
         this.cellID = cellID;
         this.phase = phase;
         this.timeStamp = timeStamp;
@@ -37,7 +38,15 @@ public class CellState implements QSerializable{
     @Override
     public Object[] mapToQArray() {
         return new Object[]{
-                cellID.toString(), phase, integrity, timeStamp
+                cellID.toString(), phase, integrity, Timestamp.valueOf(timeStamp)
+        };
+    }
+
+    @Override
+    public String[] mapToCSVRecord() {
+
+        return new String[]{
+                cellID.toString(), String.valueOf(phase), String.valueOf(integrity), timeStamp.toString()
         };
     }
 }

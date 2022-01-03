@@ -40,15 +40,13 @@ public class Orchestrator {
     }
 
     public void launchRealTime(){
-        cellsManager.loadCellsForRealTime();
-        customersManager.loadCustomersForRealTime();
+        cellsManager.loadCells();
+        customersManager.loadCustomers();
         int partitionSize = Math.min(appConfig.getBatchpartition(), customersManager.getCustomers().size());
         int breakCellInterval = appConfig.getBreakInterval();
         int sleepTime = appConfig.getSleeptime();
 
         List<List<Customer>> batchPartitions = ListUtils.partition(customersManager.getCustomers(), partitionSize);
-
-
 
         StopWatch stopWatch = new StopWatch();
         for(int i = 0;;i++){
@@ -68,8 +66,12 @@ public class Orchestrator {
 
             }
 
+            if(appConfig.isQConnect())
+                realTimeManager.generateRealtimeDataWithBatchInsertionQ(batchPartitions, partitionSize, cellsManager.getRegions());
+            else
+                realTimeManager.generateRealtimeDataWithBatchInsertionCSV(batchPartitions, partitionSize, cellsManager.getRegions());
 
-            realTimeManager.generateRealtimeDataWithBatchInsertion(batchPartitions, partitionSize, cellsManager.getRegions());
+
             stopWatch.stop();
             double partial = stopWatch.getTime(TimeUnit.MILLISECONDS);
             System.out.println("Finished loop, time: " + partial);

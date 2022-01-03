@@ -11,8 +11,6 @@ import java.util.List;
 @AllArgsConstructor
 public class Region {
 
-    private static final String quadtreeNodeSizeProperty = "quadtree.nodesize";
-
     private BoundingBox region;
     private List<Cell> cells = new ArrayList<>();
     private String name;

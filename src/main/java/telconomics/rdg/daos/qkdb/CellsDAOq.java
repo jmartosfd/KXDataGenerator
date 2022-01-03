@@ -1,5 +1,6 @@
 package telconomics.rdg.daos.qkdb;
 
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Repository;
 import telconomics.rdg.daos.CellsDAOInterface;
 import telconomics.rdg.model.Cell;
@@ -12,8 +13,14 @@ import java.util.List;
 import java.util.UUID;
 
 @Repository
+@ConditionalOnProperty(
+        value="q.connect",
+        havingValue = "True",
+        matchIfMissing = false
+)
 public class CellsDAOq implements CellsDAOInterface {
 
+    private AppConfig appConfig;
     private QConnection qConnection;
     private String QUPDATE;
     private String QINSERT = "insert";
@@ -21,20 +28,25 @@ public class CellsDAOq implements CellsDAOInterface {
     private String tableName;
 
     public CellsDAOq(QConnection qConnection, AppConfig appConfig) {
+        this.appConfig = appConfig;
         this.qConnection = qConnection;
         this.QUPDATE = appConfig.getUpdate();
         this.tableName = appConfig.getCellsTableName();
         this.QSELECT += tableName;
 
-        if (appConfig.isGenerateData()) {
-            createSchema();
+        if(appConfig.isGenerateData()){
+            createSchema(qConnection.getGeneratorQ());
         }
+        if(appConfig.isDebug()){
+            createSchema(qConnection.getQ());
+            this.QUPDATE = "insert";
 
+        }
 
     }
 
 
-    private void createSchema() {
+    private void createSchema(c connection) {
         String table = tableName + ":([cellID:`symbol$()] " +
                 "lat: `float$();" +
                 "lng: `float$();" +
@@ -42,7 +54,8 @@ public class CellsDAOq implements CellsDAOInterface {
                 "region: `symbol$())";
 
         try {
-            qConnection.getGeneratorQ().k(table);
+            connection.k(table);
+
         } catch (c.KException | IOException e) {
             e.printStackTrace();
         }
@@ -52,7 +65,7 @@ public class CellsDAOq implements CellsDAOInterface {
     public void saveCell(Cell cell) {
         try {
             qConnection.getQ().ks(QUPDATE, tableName, cell.mapToQArray());
-            qConnection.getGeneratorQ().ks(QINSERT, tableName, cell.mapToQArray());
+            //qConnection.getGeneratorQ().ks(QINSERT, tableName, cell.mapToQArray());
         } catch (IOException e) {
             e.printStackTrace();
         }

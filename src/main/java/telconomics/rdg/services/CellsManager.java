@@ -2,7 +2,7 @@ package telconomics.rdg.services;
 
 
 import lombok.Getter;
-import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 import telconomics.rdg.daos.CellStatesDAOInterface;
 import telconomics.rdg.daos.CellsDAOInterface;
@@ -28,18 +28,18 @@ public class CellsManager {
     @Getter
     private Map<String, Region> regions;
 
-    public CellsManager(
-            @Qualifier("cellsDAOq")
-            CellsDAOInterface cellsDAOInterface,
-            RegionsDAOInterface regionsDAOInterface,
-            CellStatesDAOInterface cellStatesDAOInterface,
-            AppConfig appConfig){
-        this.cellsDAOInterface = cellsDAOInterface;
+    public CellsManager(ApplicationContext applicationContext, AppConfig appConfig, RegionsDAOInterface regionsDAOInterface){
+
         this.appConfig = appConfig;
         //Load regions on construction
         this.regions = regionsDAOInterface.readRegions();
-        this.cellStatesDAOInterface = cellStatesDAOInterface;
         this.brokenCells = new HashMap<>();
+
+        String cellsDAOQualifier = appConfig.getCellsDAOQualifier();
+        String cellStatesDAOQualifier = appConfig.getCellStatesDAOQualifier();
+
+        this.cellsDAOInterface = (CellsDAOInterface) applicationContext.getBean(cellsDAOQualifier);
+        this.cellStatesDAOInterface = (CellStatesDAOInterface) applicationContext.getBean(cellStatesDAOQualifier);
 
     }
 
@@ -61,14 +61,17 @@ public class CellsManager {
      * Indexes cells in the corresponding region quadtree,
      * adding those that are broken to the brokenCells List
      */
-    public void loadCellsForRealTime(){
+    public void loadCells(){
         List<Cell> cells = cellsDAOInterface.batchReadCells();
 
+        List<CellState> cellStates = new ArrayList<>();
         for(Cell c: cells){
             regions.get(c.getRegion()).assignCell(c);
             this.cells.add(c);
-            cellStatesDAOInterface.saveCellState(c.getCurrentCellState());
+            cellStates.add(c.getCurrentCellState());
         }
+        this.cellStatesDAOInterface.batchSaveCellStates(cellStates);
+
 
         Random r = new Random();
         Set<Integer> brokenCellsIndexes = new HashSet<>();

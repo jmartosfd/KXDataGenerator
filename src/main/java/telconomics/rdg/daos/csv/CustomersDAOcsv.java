@@ -1,8 +1,8 @@
 package telconomics.rdg.daos.csv;
 
 import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.csv.CSVRecord;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import telconomics.rdg.daos.CustomersDAOInterface;
 import telconomics.rdg.model.Coordinate;
@@ -11,17 +11,16 @@ import telconomics.rdg.utils.AppConfig;
 
 import java.io.IOException;
 import java.io.Reader;
+import java.io.Writer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.List;
 
 @Repository
 public class CustomersDAOcsv implements CustomersDAOInterface {
-
-    @Autowired
-    AppConfig appConfig;
 
     private static final int csvRecordImsi = 0;
     private static final int csvRecordImei = 1;
@@ -30,15 +29,45 @@ public class CustomersDAOcsv implements CustomersDAOInterface {
     private static final int csvRecordLat = 4;
     private static final int csvRecordLong = 5;
 
+    private String fileLocation;
+
+    public CustomersDAOcsv(AppConfig appConfig){
+        this.fileLocation = appConfig.getCustomersFileLocation();
+    }
+
 
     @Override
     public void saveCustomer(Customer customer) {
+        try {
+            Path path = Paths.get(fileLocation);
+            Writer writer = Files.newBufferedWriter(path, StandardOpenOption.APPEND, StandardOpenOption.CREATE);
+            CSVPrinter csvPrinter = new CSVPrinter(writer, CSVFormat.DEFAULT);
+            csvPrinter.printRecord(customer.mapToCSVRecord());
+            csvPrinter.flush();
+            writer.close();
+            System.out.println("Finished writing into " + path);
 
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
     public void batchSaveCustomers(List<Customer> customers) {
+        try {
+            Path path = Paths.get(fileLocation);
+            Writer writer = Files.newBufferedWriter(path, StandardOpenOption.APPEND, StandardOpenOption.CREATE_NEW);
+            CSVPrinter csvPrinter = new CSVPrinter(writer, CSVFormat.DEFAULT);
+            for(Customer c : customers){
+                csvPrinter.printRecord(c.mapToCSVRecord());
+            }
+            csvPrinter.flush();
+            writer.close();
+            System.out.println("Finished writing into " + path);
 
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -46,7 +75,7 @@ public class CustomersDAOcsv implements CustomersDAOInterface {
 
         List<Customer> customersRet = new ArrayList<>();
         try {
-            Path path = Paths.get(appConfig.getCustomersFileLocation());
+            Path path = Paths.get(fileLocation);
             Reader reader = Files.newBufferedReader(path);
             Iterable<CSVRecord> customers = CSVFormat.DEFAULT.parse(reader);
             customers.forEach(csvRecord -> {

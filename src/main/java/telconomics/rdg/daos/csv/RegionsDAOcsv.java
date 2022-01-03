@@ -2,36 +2,36 @@ package telconomics.rdg.daos.csv;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 import telconomics.rdg.daos.RegionsDAOInterface;
 import telconomics.rdg.model.BoundingBox;
-import telconomics.rdg.model.Cell;
 import telconomics.rdg.model.Coordinate;
 import telconomics.rdg.model.Region;
+import telconomics.rdg.utils.AppConfig;
 
 import java.io.IOException;
 import java.io.Reader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 @Repository
 public class RegionsDAOcsv implements RegionsDAOInterface {
 
-    @Value("${resources.regions.file}")
+    private final int csvRecordMinLong = 0;
+    private final int csvRecordMinLat = 1;
+    private final int csvRecordMaxLong = 2;
+    private final int csvRecordMaxLat = 3;
+    private final int csvRecordNumberOfCells = 4;
+    private final int csvRecordRegionName = 5;
+
     private String fileLocation;
 
-    private static final int csvRecordMinLong = 0;
-    private static final int csvRecordMinLat = 1;
-    private static final int csvRecordMaxLong = 2;
-    private static final int csvRecordMaxLat = 3;
-    private static final int csvRecordNumberOfCells = 4;
-    private static final int csvRecordRegionName = 5;
+    public RegionsDAOcsv(AppConfig appConfig){
+        this.fileLocation = appConfig.getRegionsFileLocation();
+    }
 
 
     @Override

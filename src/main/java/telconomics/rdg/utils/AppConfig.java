@@ -8,11 +8,26 @@ import org.springframework.context.annotation.Configuration;
 @Getter
 public class AppConfig {
 
-    @Value("${resources.cells.file}")
+    //External resources
+
+    @Value("${resources.file.cells}")
     private String cellsFileLocation;
 
-    @Value("${resources.customers.file}")
+    @Value("${resources.file.customers}")
     private String customersFileLocation;
+
+    @Value("${resources.file.records}")
+    private String connectionRecordsFileLocation;
+
+    @Value("${resources.file.cellStates}")
+    private String cellStatesFileLocation;
+
+    @Value("${resources.file.regions}")
+    private String regionsFileLocation;
+
+
+    @Value("${q.connect}")
+    private boolean qConnect;
 
     @Value("${q.table.records}")
     private String recordsTableName;
@@ -24,15 +39,15 @@ public class AppConfig {
     private String customersTableName;
 
     @Value("${q.table.cellStates}")
-    private String cellStates;
+    private String cellStatesTableName;
 
     @Value("${q.host}")
     private String host;
 
-    @Value("${q.tp.port}")
+    @Value("${q.port.tp}")
     private int tpPort;
 
-    @Value("${q.aux.port}")
+    @Value("${q.port.aux}")
     private int auxPort;
 
     @Value("${q.username}")
@@ -41,13 +56,32 @@ public class AppConfig {
     @Value("${q.password}")
     private String password;
 
+    @Value("${q.update}")
+    private String update;
+
+
+
+    @Value("${dao.qualifier.cells}")
+    private String cellsDAOQualifier;
+
+    @Value("${dao.qualifier.customers}")
+    private String customersDAOQualifier;
+
+    @Value("${dao.qualifier.cellStates}")
+    private String cellStatesDAOQualifier;
+
+    @Value("${dao.qualifier.records}")
+    private String connectionRecordsDAOQualifier;
+
+
+
     @Value("${generator.activate}")
     private boolean generateData;
 
-    @Value("${generator.brokencells.size}")
+    @Value("${generator.size.brokencells}")
     private int numberOfBrokenCells;
 
-    @Value("${generator.customers.size}")
+    @Value("${generator.size.customers}")
     private int numberOfCustomers;
 
     @Value("${realtime.breakinterval}")
@@ -59,8 +93,11 @@ public class AppConfig {
     @Value("${realtime.sleeptime}")
     private int sleeptime;
 
-    @Value("${q.update}")
-    private String update;
+    @Value("${system.debug}")
+    private boolean debug;
+
+
+
 
 }
 

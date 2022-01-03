@@ -2,7 +2,8 @@ package telconomics.rdg.model;
 
 import lombok.Data;
 
-import java.util.Date;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.Random;
 
 @Data
@@ -23,7 +24,7 @@ public class ConnectionRecord implements CSVSerializable, QSerializable {
     double uploadSpeed;
     Coordinate userLocation;
     double distanceToCell;
-    Date timestamp;
+    LocalDateTime timestamp;
 
 
 
@@ -48,7 +49,7 @@ public class ConnectionRecord implements CSVSerializable, QSerializable {
         uploadSpeed = calculateNewValueInRange(signalQuality, minUploadQuality, maxUploadQuality) * currentCellState.getIntegrity() - distanceToCell*2 + uspeedRnd;
 
         userLocation = customer.getCurrentLocation();
-        this.timestamp = new Date();
+        this.timestamp = LocalDateTime.now();
         this.distanceToCell = distanceToCell;
 
     }
@@ -63,6 +64,7 @@ public class ConnectionRecord implements CSVSerializable, QSerializable {
 
     public String[] mapToCSVRecord(){
         return new String[]{
+                timestamp.toString(),
                 connectedCell.getCellID().toString(),
                 String.valueOf(connectedCell.getPhase()),
                 customerIMSI,
@@ -71,14 +73,14 @@ public class ConnectionRecord implements CSVSerializable, QSerializable {
                 String.valueOf(uploadSpeed),
                 String.valueOf(userLocation.getLatitude()),
                 String.valueOf(userLocation.getLongitude()),
-                timestamp.toString()
+                String.valueOf(distanceToCell),
         };
     }
 
 
     public Object[] mapToQArray(){
         return new Object[]{
-                timestamp, connectedCell.getCellID().toString(), connectedCell.getPhase(),
+                Timestamp.valueOf(timestamp), connectedCell.getCellID().toString(), connectedCell.getPhase(),
                 customerIMSI, customerIMEI, downloadSpeed, uploadSpeed,
                 userLocation.getLatitude(), userLocation.getLongitude(), distanceToCell
         };

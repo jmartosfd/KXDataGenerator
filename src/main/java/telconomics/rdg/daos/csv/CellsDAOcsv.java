@@ -46,7 +46,7 @@ public class CellsDAOcsv implements CellsDAOInterface {
     public void saveCell(Cell cell) {
         try {
             Path path = Paths.get(fileLocation);
-            Writer writer = Files.newBufferedWriter(path, StandardOpenOption.APPEND, StandardOpenOption.CREATE_NEW);
+            Writer writer = Files.newBufferedWriter(path, StandardOpenOption.APPEND, StandardOpenOption.CREATE);
             CSVPrinter csvPrinter = new CSVPrinter(writer, CSVFormat.DEFAULT);
             csvPrinter.printRecord(cell.mapToCSVRecord());
             csvPrinter.flush();

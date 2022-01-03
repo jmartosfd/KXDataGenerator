@@ -1,29 +1,37 @@
 package telconomics.rdg.daos.qkdb;
 
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Repository;
 import telconomics.rdg.daos.CellStatesDAOInterface;
 import telconomics.rdg.model.CellState;
 import telconomics.rdg.utils.AppConfig;
 
 import java.io.IOException;
+import java.util.List;
 
 @Repository
-public class CellStatesDAO implements CellStatesDAOInterface {
+@ConditionalOnProperty(
+        value="q.connect",
+        havingValue = "True",
+        matchIfMissing = false
+)
+public class CellStatesDAOq implements CellStatesDAOInterface {
 
     private QConnection qConnection;
 
     private String QINSERT;
     private String tableName;
 
-    public CellStatesDAO(QConnection qConnection, AppConfig appConfig) {
+    public CellStatesDAOq(QConnection qConnection, AppConfig appConfig) {
         this.qConnection = qConnection;
         this.QINSERT = appConfig.getUpdate();
-        this.tableName = appConfig.getCellStates();
-        /**
-        if(appConfig.isGenerateData()){
+        this.tableName = appConfig.getCellStatesTableName();
+
+        if(appConfig.isDebug()){
             createSchema();
+            this.QINSERT = "insert";
         }
-         */
+
 
     }
 
@@ -31,7 +39,7 @@ public class CellStatesDAO implements CellStatesDAOInterface {
     private void createSchema(){
         String table = tableName + ":([cellID:`symbol$(); phase:`int$()] " +
                 "integrity: `real$();" +
-                "momentOfChange: `datetime$())";
+                "momentOfChange: `timestamp$())";
 
         try {
             qConnection.getQ().k(table);
@@ -40,6 +48,12 @@ public class CellStatesDAO implements CellStatesDAOInterface {
         }
     }
 
+
+    @Override
+    public void batchSaveCellStates(List<CellState> cellStates) {
+        for(CellState cs : cellStates)
+            saveCellState(cs);
+    }
 
     @Override
     public void saveCellState(CellState cellState) {

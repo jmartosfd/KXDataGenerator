@@ -1,6 +1,7 @@
 package telconomics.rdg.services;
 
 import org.apache.commons.lang3.tuple.Pair;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 import telconomics.rdg.daos.ConnectionRecordsDAOInterface;
 import telconomics.rdg.model.Cell;
@@ -8,7 +9,9 @@ import telconomics.rdg.model.ConnectionRecord;
 import telconomics.rdg.model.Customer;
 import telconomics.rdg.model.Region;
 import telconomics.rdg.quadtree.Neighbour;
+import telconomics.rdg.utils.AppConfig;
 
+import java.sql.Timestamp;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -18,16 +21,16 @@ public class RealTimeManager {
     private ConnectionRecordsDAOInterface connectionRecordsDAO;
 
 
-    public RealTimeManager(ConnectionRecordsDAOInterface connectionRecordsDAOInterface) {
-        this.connectionRecordsDAO = connectionRecordsDAOInterface;
+    public RealTimeManager(ApplicationContext applicationContext, AppConfig appConfig) {
+        String connectionRecordsDAOQualifier = appConfig.getConnectionRecordsDAOQualifier();
+        this.connectionRecordsDAO = (ConnectionRecordsDAOInterface) applicationContext.getBean(connectionRecordsDAOQualifier);
     }
 
 
-    public void  generateRealtimeDataWithBatchInsertion(List<List<Customer>> batchPartitions, int partitionSize, Map<String, Region> loadedRegions) {
-
+    public void generateRealtimeDataWithBatchInsertionQ(List<List<Customer>> batchPartitions, int partitionSize, Map<String, Region> loadedRegions) {
 
         batchPartitions.forEach(customersPartition -> {
-            Date[] timestamps = new Date[partitionSize];
+            Timestamp[] timestamps = new Timestamp[partitionSize];
             String[] cellsIDs = new String[partitionSize];
             int[] cellPhases = new int[partitionSize];
             String[] userImsis = new String[partitionSize];
@@ -43,7 +46,7 @@ public class RealTimeManager {
                 Pair<Cell, Double> pair = findClosestCellToCustomer(c, loadedRegions.get(c.getAssignedRegion()));
                 ConnectionRecord connectionRecord = new ConnectionRecord(c, pair.getLeft(), pair.getRight());
                 Object[] qReady = connectionRecord.mapToQArray();
-                timestamps[i] = (Date) qReady[0];
+                timestamps[i] = (Timestamp) qReady[0];
                 cellsIDs[i] = (String) qReady[1];
                 cellPhases[i] = (int) qReady[2];
                 userImsis[i] = (String) qReady[3];
@@ -59,7 +62,9 @@ public class RealTimeManager {
             Object[] batchRecords = new Object[]{
                     timestamps, cellsIDs, cellPhases, userImsis, userImeis, dspeeds, uspeeds, lats, longs, distances
             };
-            connectionRecordsDAO.batchInsertConnectionRecord(batchRecords);
+            List<Object[]> batchRecordsList = new ArrayList<>();
+            batchRecordsList.add(batchRecords);
+            connectionRecordsDAO.batchInsertConnectionRecord(batchRecordsList);
 
 
         });
@@ -79,6 +84,26 @@ public class RealTimeManager {
         }
     }
 
+
+    public void generateRealtimeDataWithBatchInsertionCSV(List<List<Customer>> batchPartitions, int partitionSize, Map<String, Region> loadedRegions) {
+
+        batchPartitions.forEach(customersPartition -> {
+            List<ConnectionRecord> connectionRecordsList = new ArrayList<>();
+            for (int i = 0; i < customersPartition.size(); i++) {
+                Customer c = customersPartition.get(i);
+                Pair<Cell, Double> pair = findClosestCellToCustomer(c, loadedRegions.get(c.getAssignedRegion()));
+                ConnectionRecord connectionRecord = new ConnectionRecord(c, pair.getLeft(), pair.getRight());
+                connectionRecordsList.add(connectionRecord);
+                customerNextStep(customersPartition.get(i));
+
+            }
+
+            connectionRecordsDAO.batchInsertConnectionRecord(connectionRecordsList);
+
+
+        });
+
+    }
 
     private Customer customerNextStep(Customer customer) {
         double lat = customer.getCurrentLocation().getLatitude();

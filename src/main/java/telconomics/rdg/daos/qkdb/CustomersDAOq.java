@@ -1,5 +1,6 @@
 package telconomics.rdg.daos.qkdb;
 
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Repository;
 import telconomics.rdg.daos.CustomersDAOInterface;
 import telconomics.rdg.model.Coordinate;
@@ -11,6 +12,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Repository
+@ConditionalOnProperty(
+        value="q.connect",
+        havingValue = "True",
+        matchIfMissing = false
+)
 public class CustomersDAOq implements CustomersDAOInterface {
 
     private QConnection qConnection;
@@ -27,13 +33,17 @@ public class CustomersDAOq implements CustomersDAOInterface {
         QSELECT+=tableName;
 
         if(appConfig.isGenerateData())
-            createSchema();
+            createSchema(qConnection.getGeneratorQ());
+
+        if(appConfig.isDebug()){
+            createSchema(qConnection.getQ());
+            this.QUPDATE = "insert";
+        }
+
 
     }
 
-
-
-    private void createSchema(){
+    private void createSchema(c connection){
         String table = tableName + ":([] imsi:`symbol$();" +
                 "imei: `symbol$();"+
                 "signalQuality: `float$();" +
@@ -42,7 +52,7 @@ public class CustomersDAOq implements CustomersDAOInterface {
                 "lng: `float$())";
 
         try {
-            qConnection.getGeneratorQ().k(table);
+            connection.k(table);
         } catch (c.KException | IOException e) {
             e.printStackTrace();
         }
@@ -77,7 +87,7 @@ public class CustomersDAOq implements CustomersDAOInterface {
             lngs[i] = customers.get(i).getCurrentLocation().getLongitude();
         }
 
-        Object customersArray[] = new Object[]{imsis,imeis,signalQuals,regions,lats,lngs};
+        Object[] customersArray = new Object[]{imsis,imeis,signalQuals,regions,lats,lngs};
 
         try {
             qConnection.getQ().ks(QUPDATE, tableName, customersArray);
