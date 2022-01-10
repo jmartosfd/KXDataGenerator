@@ -93,8 +93,13 @@ public class AppConfig {
     @Value("${realtime.sleeptime}")
     private int sleeptime;
 
+    @Value("${realtime.ticks}")
+    private int numberOfTicks;
+
     @Value("${system.debug}")
     private boolean debug;
+
+
 
 
 

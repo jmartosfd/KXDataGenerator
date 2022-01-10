@@ -48,8 +48,16 @@ public class CellsController {
     public ResponseEntity automaticFix(@RequestBody Map<String, Integer> request) {
         System.out.println("Activated automatic repair of cells");
         int fixInterval = request.get("fixInterval");
-        orchestrator.setActivateAutomaticCellRepair(Boolean.TRUE);
-        orchestrator.setFixCellInterval(fixInterval);
+        //Flip automatic cell repair
+        if(fixInterval < 0){
+            orchestrator.setActivateAutomaticCellRepair(Boolean.FALSE);
+        }else{
+            orchestrator.setActivateAutomaticCellRepair(Boolean.TRUE);
+            orchestrator.setFixCellInterval(fixInterval);
+
+        }
+
+        System.out.println("Automatic repair set as " + orchestrator.isActivateAutomaticCellRepair());
         return new ResponseEntity(HttpStatus.OK);
     }
 

@@ -1,5 +1,6 @@
 package telconomics.rdg.services;
 
+import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.time.StopWatch;
@@ -11,6 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Predicate;
 
 @Service
 public class Orchestrator {
@@ -20,6 +22,7 @@ public class Orchestrator {
     private RealTimeManager realTimeManager;
     private AppConfig appConfig;
 
+    @Getter
     @Setter
     private boolean activateAutomaticCellRepair=false;
 
@@ -49,7 +52,17 @@ public class Orchestrator {
         List<List<Customer>> batchPartitions = ListUtils.partition(customersManager.getCustomers(), partitionSize);
 
         StopWatch stopWatch = new StopWatch();
-        for(int i = 0;;i++){
+
+        Predicate<Integer> condition;
+        if(appConfig.getNumberOfTicks() > 0){
+            condition = x -> x < appConfig.getNumberOfTicks();
+        }else{
+            condition = x -> x > -1;
+        }
+
+        //int i = 0;
+        //while(condition.test(i)){
+        for(int i = 0; condition.test(i); i++){
             stopWatch.start();
             if(i%breakCellInterval == 0){
                 Random rn = new Random();
