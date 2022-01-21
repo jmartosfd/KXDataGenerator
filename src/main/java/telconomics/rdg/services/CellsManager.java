@@ -63,28 +63,45 @@ public class CellsManager {
      */
     public void loadCells(){
         List<Cell> cells = cellsDAOInterface.batchReadCells();
+        Map<UUID, List<CellState>> previousCellStates = new HashMap<>();
+        if(!appConfig.isGenerateData()){
+            previousCellStates = cellStatesDAOInterface.batchReadCellStates();
+
+        }
 
         List<CellState> cellStates = new ArrayList<>();
         for(Cell c: cells){
             regions.get(c.getRegion()).assignCell(c);
             this.cells.add(c);
             cellStates.add(c.getCurrentCellState());
-        }
-        this.cellStatesDAOInterface.batchSaveCellStates(cellStates);
 
-
-        Random r = new Random();
-        Set<Integer> brokenCellsIndexes = new HashSet<>();
-        while(brokenCellsIndexes.size()< appConfig.getNumberOfBrokenCells()){
-            brokenCellsIndexes.add(r.nextInt(cells.size()));
         }
 
-        brokenCellsIndexes.forEach(integer -> {
-            Cell c = cells.get(integer);
-            brokenCells.put(c.getId().toString(), c);
-            CellState cs = c.addNewCellState();
-            cellStatesDAOInterface.saveCellState(cs);
-        });
+        if(previousCellStates.isEmpty()){
+            this.cellStatesDAOInterface.batchSaveCellStates(cellStates);
+            Random r = new Random();
+            Set<Integer> brokenCellsIndexes = new HashSet<>();
+            while(brokenCellsIndexes.size()< appConfig.getNumberOfBrokenCells()){
+                brokenCellsIndexes.add(r.nextInt(cells.size()));
+            }
+
+            brokenCellsIndexes.forEach(integer -> {
+                Cell c = cells.get(integer);
+                brokenCells.put(c.getId().toString(), c);
+                CellState cs = c.addNewCellState();
+                cellStatesDAOInterface.saveCellState(cs);
+            });
+        }else{
+            for(Cell c: cells){
+                if(previousCellStates.containsKey(c.getId())){
+                    CellState cellState = previousCellStates.get(c.getId()).get(0);
+                    c.addNewCellState(previousCellStates.get(c.getId()).get(0).getIntegrity());
+                    System.out.println("Read cell state for cell "+cellState.getCellID()+ " and integrity " +cellState.getIntegrity());
+                    brokenCells.put(c.getId().toString(), c);
+                }
+            }
+        }
+
 
     }
 

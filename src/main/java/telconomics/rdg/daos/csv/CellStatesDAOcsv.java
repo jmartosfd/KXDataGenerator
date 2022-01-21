@@ -14,6 +14,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 @Repository
 public class CellStatesDAOcsv implements CellStatesDAOInterface {
@@ -65,5 +67,10 @@ public class CellStatesDAOcsv implements CellStatesDAOInterface {
         }
 
 
+    }
+
+    @Override
+    public Map<UUID, List<CellState>> batchReadCellStates() {
+        return null;
     }
 }

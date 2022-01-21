@@ -7,7 +7,8 @@ import telconomics.rdg.model.CellState;
 import telconomics.rdg.utils.AppConfig;
 
 import java.io.IOException;
-import java.util.List;
+import java.sql.Timestamp;
+import java.util.*;
 
 @Repository
 @ConditionalOnProperty(
@@ -21,18 +22,20 @@ public class CellStatesDAOq implements CellStatesDAOInterface {
 
     private String QINSERT;
     private String tableName;
+    private String QSELECT;
+
+
 
     public CellStatesDAOq(QConnection qConnection, AppConfig appConfig) {
         this.qConnection = qConnection;
         this.QINSERT = appConfig.getUpdate();
         this.tableName = appConfig.getCellStatesTableName();
+        this.QSELECT = "0!select by cellID from " + tableName +" where 1 < (last;phase) fby cellID";
 
         if(appConfig.isDebug()){
             createSchema();
             this.QINSERT = "insert";
         }
-
-
     }
 
 
@@ -62,5 +65,36 @@ public class CellStatesDAOq implements CellStatesDAOInterface {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public Map<UUID, List<CellState>> batchReadCellStates() {
+
+        try {
+            c.Flip res = (c.Flip) qConnection.getRdbQ().k(QSELECT);
+            Object[] columnData = res.y;
+            String[] cellIDs = (String[]) columnData[0];
+            int[] phases = (int[]) columnData[1];
+            float[] integrities = (float[]) columnData[2];
+            Timestamp[] momentsOfChange = (Timestamp[]) columnData[3];
+
+
+            Map<UUID, List<CellState>> cellStates = new HashMap<>();
+            for (int i = 0; i < cellIDs.length; i++) {
+                CellState cs = new CellState(UUID.fromString(cellIDs[i]), phases[i], integrities[i], momentsOfChange[i].toLocalDateTime());
+                System.out.println("CellState: "+cs.getCellID() + " integrity "+ cs.getIntegrity());
+                List<CellState> cellStatesListTmp = new ArrayList<>();
+                cellStatesListTmp.add(cs);
+                cellStates.put(cs.getCellID(),cellStatesListTmp);
+
+            }
+            return cellStates;
+
+
+        } catch (IOException | c.KException e) {
+            e.printStackTrace();
+            throw new RuntimeException("Failed to connect");
+        }
+
     }
 }

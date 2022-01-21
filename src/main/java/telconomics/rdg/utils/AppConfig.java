@@ -47,6 +47,9 @@ public class AppConfig {
     @Value("${q.port.tp}")
     private int tpPort;
 
+    @Value("${q.port.rdb}")
+    private int rdbPort;
+
     @Value("${q.port.aux}")
     private int auxPort;
 

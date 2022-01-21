@@ -3,6 +3,7 @@ package telconomics.rdg.services;
 import lombok.Getter;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
+import telconomics.rdg.daos.ConnectionRecordsDAOInterface;
 import telconomics.rdg.daos.CustomersDAOInterface;
 import telconomics.rdg.daos.RegionsDAOInterface;
 import telconomics.rdg.model.ConnectionRecord;
@@ -13,9 +14,7 @@ import telconomics.rdg.utils.AppConfig;
 import telconomics.rdg.utils.IMEIGenerator;
 import telconomics.rdg.utils.IMSIGenerator;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 @Service
 public class CustomersManager {
@@ -23,6 +22,7 @@ public class CustomersManager {
 
     private CustomersDAOInterface customersDAOInterface;
     private RegionsDAOInterface regionsDAOInterface;
+    private ConnectionRecordsDAOInterface connectionRecordsDAOInterface;
     private AppConfig appConfig;
 
     @Getter
@@ -34,6 +34,9 @@ public class CustomersManager {
 
         String customersDAOQualifier = appConfig.getCustomersDAOQualifier();
         this.customersDAOInterface = (CustomersDAOInterface) applicationContext.getBean(customersDAOQualifier);
+        String connectionRecordsDAOQualifier = appConfig.getConnectionRecordsDAOQualifier();
+        this.connectionRecordsDAOInterface = (ConnectionRecordsDAOInterface) applicationContext.getBean(connectionRecordsDAOQualifier);
+
     }
 
     public void generateNewCustomers() {
@@ -52,6 +55,12 @@ public class CustomersManager {
 
     public void loadCustomers(){
         customers = customersDAOInterface.batchReadCustomers();
+        Map<String, Coordinate> lastPositions = connectionRecordsDAOInterface.recoverLastPositions();
+        if(!lastPositions.isEmpty()){
+            for (Customer customer : customers){
+                customer.setCurrentLocation(lastPositions.get(customer.getImei()));
+            }
+        }
     }
 
 

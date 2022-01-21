@@ -9,7 +9,7 @@ import java.io.IOException;
 
 @Service
 @ConditionalOnProperty(
-        value="q.connect",
+        value = "q.connect",
         havingValue = "True",
         matchIfMissing = false
 )
@@ -21,17 +21,23 @@ public class QConnection {
     @Getter
     private c generatorQ;
 
+    @Getter
+    private c rdbQ;
+
     public QConnection(AppConfig appConfig) {
-            try {
-                this.Q = new c(appConfig.getHost(), appConfig.getTpPort(),
-                        appConfig.getUsername() + ":" + appConfig.getPassword(), false);
+        try {
+            this.Q = new c(appConfig.getHost(), appConfig.getTpPort(),
+                    appConfig.getUsername() + ":" + appConfig.getPassword(), false);
 
-                this.generatorQ = new c(appConfig.getHost(), appConfig.getAuxPort(),
-                        appConfig.getUsername() + ":" + appConfig.getPassword(), false);
+            this.generatorQ = new c(appConfig.getHost(), appConfig.getAuxPort(),
+                    appConfig.getUsername() + ":" + appConfig.getPassword(), false);
 
-            } catch (c.KException | IOException e) {
-                e.printStackTrace();
-            }
+            this.rdbQ = new c(appConfig.getHost(), appConfig.getRdbPort(),
+                    appConfig.getUsername() + ":" + appConfig.getPassword(), false);
+
+        } catch (c.KException | IOException e) {
+            e.printStackTrace();
+        }
 
     }
 

@@ -16,7 +16,7 @@ public class CellState implements QSerializable, CSVSerializable {
     float integrity;
     LocalDateTime timeStamp;
 
-    protected CellState(UUID cellID, int phase, float integrity, LocalDateTime timeStamp) {
+    public CellState(UUID cellID, int phase, float integrity, LocalDateTime timeStamp) {
         this.cellID = cellID;
         this.phase = phase;
         this.integrity = integrity;

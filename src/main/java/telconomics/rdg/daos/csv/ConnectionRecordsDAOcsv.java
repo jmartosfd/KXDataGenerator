@@ -5,6 +5,7 @@ import org.apache.commons.csv.CSVPrinter;
 import org.springframework.stereotype.Repository;
 import telconomics.rdg.daos.ConnectionRecordsDAOInterface;
 import telconomics.rdg.model.ConnectionRecord;
+import telconomics.rdg.model.Coordinate;
 import telconomics.rdg.utils.AppConfig;
 
 import java.io.IOException;
@@ -14,6 +15,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.List;
+import java.util.Map;
 
 @Repository
 public class ConnectionRecordsDAOcsv implements ConnectionRecordsDAOInterface {
@@ -53,14 +55,14 @@ public class ConnectionRecordsDAOcsv implements ConnectionRecordsDAOInterface {
     }
 
     @Override
-    public void batchInsertConnectionRecord(List records) {
+    public void batchInsertConnectionRecord(List<?> records) {
         try {
             Path path = Paths.get(fileLocation);
             Writer writer = Files.newBufferedWriter(path, StandardOpenOption.APPEND, StandardOpenOption.CREATE);
             CSVPrinter csvPrinter = new CSVPrinter(writer, CSVFormat.DEFAULT);
             int numberOfRecords = records.size();
-            for (int i = 0; i < numberOfRecords; i++) {
-                ConnectionRecord connectionRecord = (ConnectionRecord) records.get(i);
+            for (Object record : records) {
+                ConnectionRecord connectionRecord = (ConnectionRecord) record;
                 csvPrinter.printRecord(connectionRecord.mapToCSVRecord());
             }
             csvPrinter.flush();
@@ -71,5 +73,10 @@ public class ConnectionRecordsDAOcsv implements ConnectionRecordsDAOInterface {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public Map<String, Coordinate> recoverLastPositions() {
+        return null;
     }
 }
